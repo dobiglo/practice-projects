@@ -4,7 +4,7 @@ import shutil
 
 def organize_folder(folder_path):
     file_types = {
-        "Images": [
+        "images": [
             ".jpg",
             ".jpeg",
             ".png",
@@ -16,7 +16,7 @@ def organize_folder(folder_path):
             ".ai",
             ".eps",
         ],
-        "Documents": [
+        "documents": [
             ".pdf",
             ".docx",
             ".pptx",
@@ -29,8 +29,8 @@ def organize_folder(folder_path):
             ".doc",
             ".md",
         ],
-        "Videos": [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".webm"],
-        "Audio": [
+        "videos": [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".webm"],
+        "audio": [
             ".mp3",
             ".wav",
             ".flac",
@@ -42,7 +42,7 @@ def organize_folder(folder_path):
             ".aiff",
             ".aif",
         ],
-        "Archives": [
+        "archives": [
             ".zip",
             ".rar",
             ".7z",
@@ -56,8 +56,8 @@ def organize_folder(folder_path):
             ".bz2",
             ".xz",
         ],
-        "Scripts": [".py", ".js", ".bat", ".cmd", ".vbs", ".rb", ".ps1", ".sh"],
-        "Config": [
+        "scripts": [".py", ".js", ".bat", ".cmd", ".vbs", ".rb", ".ps1", ".sh"],
+        "config": [
             ".ini",
             ".cfg",
             ".conf",
@@ -67,7 +67,7 @@ def organize_folder(folder_path):
             ".toml",
             ".properties",
         ],
-        "Applications": [".exe", ".app", ".msi", ".scr"],
+        "applications": [".exe", ".app", ".msi", ".scr"],
     }
 
     print(f"Organizing files in: {folder_path}\n")
@@ -76,25 +76,35 @@ def organize_folder(folder_path):
 
     for filename in os.listdir(folder_path):
         file_path = os.path.join(folder_path, filename)
+        if not os.path.isfile(file_path):
+            continue
 
-        if os.path.isfile(file_path):
-            _, ext = os.path.splitext(filename)
-            moves = False
+        _, ext = os.path.splitext(filename)
+        folder = _find_folder_for_extension(file_types, ext)
+        if not folder:
+            print(f"Skipped {filename} because of unknown extension")
+            continue
 
-            for folder, extensions in file_types.items():
-                if ext.lower() in extensions:
-                    target_folder = os.path.join(folder_path, folder)
-                    os.makedirs(target_folder, exist_ok=True)
-                    shutil.move(file_path, os.path.join(target_folder, filename))
-                    print(f"Moved: {filename} to {folder}/")
-                    files_moved += 1
-                    moved = True
-                    break
-
-            if not moved:
-                print(f"Skipped {filename} because of 'Unknown type'")
+        folder_name = folder.capitalize()
+        target_folder = os.path.join(folder_path, folder_name)
+        os.makedirs(target_folder, exist_ok=True)
+        shutil.move(file_path, os.path.join(target_folder, filename))
+        print(f"Moved: {filename} to {folder_name}")
+        files_moved += 1
 
     print(f"Done! Total files moved: {files_moved}")
+
+
+def _find_folder_for_extension(file_types, ext):
+    folder = None
+
+    for dir, extensions in file_types.items():
+        if not ext.lower() in extensions:
+            continue
+        folder = dir
+        break
+
+    return folder
 
 
 organize_folder("your file path here")
